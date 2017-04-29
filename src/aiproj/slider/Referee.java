@@ -7,7 +7,7 @@
  * created for COMP30024 Artificial Intelligence 2017
  * by Matt Farrugia <matt.farrugia@unimelb.edu.au>
  */
-package aiproj;
+package aiproj.slider;
 
 /** 
  * Referee class: Driver for a game of Slider

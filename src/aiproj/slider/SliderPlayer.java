@@ -9,7 +9,7 @@
  * created for COMP30024 Artificial Intelligence 2017
  * by Matt Farrugia <matt.farrugia@unimelb.edu.au>
  */
-package aiproj;
+package aiproj.slider;
 
 /**
  * Slider game player interface specification. Your program should implement
