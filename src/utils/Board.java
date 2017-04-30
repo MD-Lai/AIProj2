@@ -1,9 +1,10 @@
 package utils;
 
-
+/** Bunch of Functions useful for creating and printing the board 
+ * as well as numbers corresponding to what each digit represents
+ * */
 
 public class Board {
-	
 	// numbers corresponding to tile type
 	public static final int FREE = 1;
 	public static final int BLCK = 2;
