@@ -1,3 +1,4 @@
+package utils;
 // anything requiring strings is so slow
 // try to minimise use of string as much as possible...
 public class Row {
@@ -31,24 +32,22 @@ public class Row {
 		return row <= 0 ? add : add * n10(row)  + row;
 	}
 	
-	// function to retrieve a single digit of an int at specified index
-	public static int getVal(int row, int ind){
+	// function to retrieve a single digit of an int at specified index of board
+	// (0,0) is bottom left corner, follows cartesian coords
+	public static int getVal(int[] board, int x, int y){
+		int row = board[y];
+		
 		int curr = Integer.toString(row).length();
 		int d, k = -1;
 		
 		// lists numbers from right to left,
 		// meaning index increments high to low
-		while(row > 0 && curr-- != ind){
+		while(row > 0 && curr-- != x){
 			d = row / 10;
 			k = row - d * 10;
 			row = d;
 		}
 		return k;
-		
-		/*
-		// slow method
-		return Integer.parseInt(Integer.toString(row).substring(ind, ind+1));
-		*/
 	}
 	
 	// faster now

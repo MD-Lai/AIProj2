@@ -1,13 +1,17 @@
-package ai.proj2.mldz;
+package agents.mldz.human;
 
 import aiproj.slider.SliderPlayer;
 import aiproj.slider.Move;
 
-public class Interplay implements SliderPlayer{
+public class Human implements SliderPlayer{
+	
+	protected int[] board;
 
 	@Override
 	public void init(int dimension, String board, char player) {
-		// TODO Auto-generated method stub
+		// TODO Get board from string, store it as int arr
+		String[] rows = board.replaceAll(" ", "").split("\n");
+		this.board = new int[dimension];
 		
 	}
 
