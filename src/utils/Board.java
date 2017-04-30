@@ -50,6 +50,31 @@ public class Board {
 		return iRow;
 	}
 	
+	public static void movePiece(int[] iBoard, int x, int y, char move){
+		switch(move){
+		// just account for moving up and right off the board, assume player gives correct moves
+		case 'u':
+			if(y+1 < iBoard.length - 1){
+				// only replace with value if not moving off board
+				Row.replaceVal(iBoard, Row.getVal(iBoard, x, y), x, y+1);
+			}
+			break;
+		case 'r':
+			if(x+1 < iBoard.length - 1){
+				Row.replaceVal(iBoard, Row.getVal(iBoard, x, y), x+1, y);
+			}
+			break;
+		case 'd':
+			Row.replaceVal(iBoard, Row.getVal(iBoard, x, y), x, y-1);
+			break;
+		case 'l':
+			Row.replaceVal(iBoard, Row.getVal(iBoard, x, y), x-1, y);
+			break;
+		}
+		
+		Row.replaceVal(iBoard, Board.FREE, x, y);
+	}
+	
 	public static void printiBoard(int[] iBoard){
 		// prints board from top left corner to bottom right
 		// bottom left corner is (0,0)

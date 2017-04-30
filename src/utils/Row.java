@@ -33,8 +33,8 @@ public class Row {
 	
 	// function to retrieve a single digit of an int at specified index of board
 	// (0,0) is bottom left corner, follows cartesian coords
-	public static int getVal(int[] board, int x, int y){
-		int row = board[y];
+	public static int getVal(int[] iBoard, int x, int y){
+		int row = iBoard[y];
 		
 		int curr = intLen(row);
 		int d, k = -1;
