@@ -5,9 +5,8 @@ package utils;
  * */
 
 public class Row {
-	// converts a list of ints to a singular int
+	// converts a list of ints in range 0-9 to a singular int
 	public static int collapse(int... rowVals){
-		// only allows 0-9
 		int collapsed = 0;
 		int factor = 1;
 		for(int i = rowVals.length - 1; i >= 0; --i){
@@ -18,7 +17,7 @@ public class Row {
 		
 	}
 	
-	// adds number 'add' to end of row, only works for any ints
+	// adds number to end of row, only works for +ve ints
 	public static int append(int row, int add){
 		// much faster method
 		// java doesn't display leading 0s of an int
@@ -26,6 +25,7 @@ public class Row {
 		return row * n10(add) + add;
 	}
 	
+	// adds number to front of row, only works for any +ve ints
 	public static int prepend(int row, int add){
 		// fast method
 		return row <= 0 ? add : add * n10(row)  + row;
@@ -36,8 +36,9 @@ public class Row {
 	public static int getVal(int[] iBoard, int x, int y){
 		int row = iBoard[y];
 		
-		int curr = intLen(row);
-		int d, k = -1;
+		int curr = iBoard.length; // uses property that a board is an nxn sized board to get n
+		int d;
+		int k = -1;
 		
 		// lists numbers from right to left,
 		// meaning index increments high to low
@@ -57,7 +58,7 @@ public class Row {
 		int row = iBoard[y];
 		int newRow = 0;
 		// actually index currently at
-		int curr = intLen(row) - 1;
+		int curr = iBoard.length - 1; // uses property that a board is an nxn sized board to get n
 		while (row > 0) {
 			int d = row / 10;
 			int k = row - d * 10;
@@ -71,15 +72,16 @@ public class Row {
 			if(curr == x){
 				newRow = prepend(newRow, rep);
 				iBoard[y] = prepend(newRow, row);
+				return;
+				// no need for a return value as modifying an array is the equivalent of *(p+i) = n in c
 			}
 			newRow = prepend(newRow, k);
 			--curr;
 		}
 	}
 	
-	// returns number of 10s in a number
+	// returns lowest power of 10 of an int
 	// i.e. 2930 => 1000
-	
 	private static int n10(int row){
 		int len = intLen(row);
 		int tens = 1;
