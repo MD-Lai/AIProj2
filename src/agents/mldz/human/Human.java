@@ -10,7 +10,8 @@ import agents.mldz.Interplay;
 
 import java.io.IOException;
 
-
+/** Human controlled agent 
+ */
 public class Human extends Interplay{
 	
 

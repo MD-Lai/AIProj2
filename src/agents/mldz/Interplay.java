@@ -7,6 +7,9 @@ import java.util.Random;
 
 import aiproj.slider.Move;
 
+/** base class with some foundation functions to help with generating moves
+ * e.g. listing all available moves and counting number of available moves etc.
+ */
 public class Interplay implements SliderPlayer{
 	
 	protected Board board;
@@ -31,7 +34,7 @@ public class Interplay implements SliderPlayer{
 
 	@Override
 	public void update(Move move) {
-		// TODO update based on opponent's move;
+		// update based on opponent's move;
 		if(move != null){
 			this.board.movePiece(move.i, move.j, move.d);
 		}
@@ -40,7 +43,7 @@ public class Interplay implements SliderPlayer{
 	@Override
 	public Move move() {
 		Random r = new Random();
-		// TODO base movement, random
+		// base movement, random
 		Move[] m = this.movesAvailable(this.me);
 		
 		if(m.length == 0){
