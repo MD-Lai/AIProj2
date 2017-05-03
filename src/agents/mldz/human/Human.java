@@ -1,40 +1,43 @@
 package agents.mldz.human;
 
-import aiproj.slider.SliderPlayer;
 import aiproj.slider.Move;
-import utils.*;
+import board.Board;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+
+import agents.mldz.Interplay;
+
 import java.io.IOException;
 
 
-public class Human implements SliderPlayer{
+public class Human extends Interplay{
 	
-	protected int[] board;
-
-	@Override
-	public void init(int dimension, String board, char player) {
-		// TODO Get board from string, store it as int arr
-		this.board = Board.convertBoard(dimension, board);
-		
-		
-	}
 
 	@Override
 	public void update(Move move) {
-		// TODO Auto-generated method stub
-		
+		// TODO update based on opponent's move;
+		if(move != null){
+			this.board.movePiece(move.i, move.j, move.d);
+			System.out.println(this.op + " " + move.toString());
+		}
 	}
 
 	@Override
 	public Move move() {
+		// so the petty human knows what his coords are
+		humaniseBoard();
 		
 		// gets move from console input.
 		try{
 			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-			System.out.print("Enter Move: x y dir\n");
-			String[] command = br.readLine().split(" ");
+			System.out.print("Enter Move " + this.me + ": x y dir\n");
+			String line = br.readLine();
+			
+			if(line.equals("null")){
+				return null;
+			}
+			String[] command = line.split(" ");
 			int x = Integer.parseInt(command[0]);
 			int y = Integer.parseInt(command[1]);
 			char move = command[2].toCharArray()[0];
@@ -58,7 +61,7 @@ public class Human implements SliderPlayer{
 				System.out.println("invalid move: " + command[2]+ " (u,d,l,r)");
 				throw new IOException();
 			}
-			Board.movePiece(this.board, x, y, move);
+			board.movePiece(x, y, dir);
 			return new Move(x,y,dir);
 		}
 		catch(IOException e){
@@ -66,5 +69,29 @@ public class Human implements SliderPlayer{
 		}
 		return null;
 	}
-
+	
+	public void humaniseBoard(){
+		byte[][] b = this.board.getTiles();
+		
+		String str = "";
+		
+		for(int y = b.length - 1; y >= 0; --y){
+			str += y + " ";
+			for(int x = 0; x < b.length; ++x){
+				str += (Board.BLOCKS[b[x][y]]);
+				if(x != b.length-1){
+					str += (" ");
+				}
+			}
+			str += "\n";
+		}
+		str += "x ";
+		for(int f = 0; f < b.length; ++f){
+			str += f + " ";
+		}
+		str += "\n";
+		
+		System.out.println(str);
+	}
+	
 }
