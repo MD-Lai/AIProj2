@@ -2,6 +2,7 @@ package agents.mldz.human;
 
 import aiproj.slider.Move;
 import board.Board;
+import utils.MOPS;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -46,20 +47,17 @@ public class Human extends Interplay{
 			Move.Direction dir;
 			
 			switch(move){
-			case 'u':
-				dir = Move.Direction.UP;
-				break;
-			case 'd':
-				dir = Move.Direction.DOWN;
+			case 'f':
+				dir = MOPS.forward(this.me);
 				break;
 			case 'l':
-				dir = Move.Direction.LEFT;
+				dir = MOPS.left(this.me);
 				break;
 			case 'r':
-				dir = Move.Direction.RIGHT;
+				dir = MOPS.right(this.me);
 				break;
 			default:
-				System.out.println("invalid move: " + command[2]+ " (u,d,l,r)");
+				System.out.println("invalid move: " + command[2]+ " (f,l,r) for forward left or right");
 				throw new IOException();
 			}
 			board.movePiece(x, y, dir);

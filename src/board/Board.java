@@ -54,7 +54,7 @@ public class Board {
 		}
 	}
 	
-
+	// blindly moves a piece, up to user to give a valid move
 	public void movePiece(int x, int y, Move.Direction d){
 		switch(d){
 		// just account for moving up and right off the board, assume player gives correct moves
@@ -150,6 +150,64 @@ public class Board {
 			return false;
 		}
 		return true;
+	}
+	
+	public boolean validMove(int x, int y, Move.Direction dir){
+		
+		int curr = this.board[x][y];
+		
+		// in case you check a piece that isn't a player piece
+		switch(curr){
+		case FREE:
+			return false;
+		case BLCK:
+			return false;
+		case VERT:
+			switch(dir){
+			case UP:
+				if(y == board.length - 1 || withinBounds(x, y + 1) && board[x][y+1] == Board.FREE){
+					return true;
+				}
+				break;
+			case RIGHT:
+				if(withinBounds(x + 1, y) && board[x+1][y] == Board.FREE){
+					return true;
+				}
+				break;
+			case LEFT:
+				if(withinBounds(x - 1, y) && board[x-1][y] == Board.FREE){
+					return true;
+				}
+			default:
+				return false;
+			}
+			break;
+		case HORI:
+			switch(dir){
+			case RIGHT:
+				if(x == board.length - 1 || withinBounds(x + 1, y) && board[x+1][y] == Board.FREE){
+					return true;
+				}
+				break;
+			case DOWN:
+				if(withinBounds(x, y - 1) && board[x][y-1] == Board.FREE){
+					return true;
+				}
+				break;
+			case UP:
+				if(withinBounds(x, y + 1) && board[x][y+1] == Board.FREE){
+					return true;
+				}
+				break;
+			default:
+				return false;
+			}
+			break;
+		default:
+			return false;
+		}
+		
+		return false;
 	}
 	
 	public Board flipped(){

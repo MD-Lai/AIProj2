@@ -2,6 +2,8 @@ package agents.mldz;
 
 import aiproj.slider.SliderPlayer;
 import board.Board;
+import utils.MOPS;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -66,120 +68,44 @@ public class Interplay implements SliderPlayer{
 		byte[][] b = this.board.getTiles();
 		
 		int free = 0;
-		
-		switch(player){
-		case 'H':
-			for(int y = 0; y < b.length; y++){
-				for(int x = 0; x < b.length; x++){
-					if(player == Board.BLOCKS[b[x][y]]){
-						// get available horizontal moves
-						
-						// check up 
-						if(Board.withinBounds(b.length, x, y + 1) && b[x][y+1] == Board.FREE){
-							free++;
-						}
-						
-						// check right
-						if(x + 1 == b.length || Board.withinBounds(b.length, x + 1, y) && b[x+1][y] == Board.FREE){
-							free++;
-						}
-						
-						// check down
-						if(Board.withinBounds(b.length, x, y - 1) && b[x][y-1] == Board.FREE){
-							free++;
-						}
+		for(int y = 0; y < b.length; y++){
+			for(int x = 0; x < b.length; x++){
+				if(player == Board.BLOCKS[b[x][y]]){
+					if(this.board.validMove(x, y, MOPS.forward(player))){
+						free++;
+					}
+					if(this.board.validMove(x, y, MOPS.right(player))){
+						free++;
+					}
+					if(this.board.validMove(x, y, MOPS.left(player))){
+						free++;
 					}
 				}
 			}
-			break;
-		case 'V':
-			for(int y = 0; y < b.length; y++){
-				for(int x = 0; x < b.length; x++){
-					if(player == Board.BLOCKS[b[x][y]]){
-						// get available horizontal moves
-						
-						// check up 
-						if(y == b.length || Board.withinBounds(b.length, x, y + 1) && b[x][y+1] == Board.FREE){
-							free++;
-						}
-						
-						// check right
-						if(Board.withinBounds(b.length, x + 1, y) && b[x+1][y] == Board.FREE){
-							free++;
-						}
-						
-						// check left
-						if(Board.withinBounds(b.length, x - 1, y) && b[x-1][y] == Board.FREE){
-							free++;
-						}
-					}
-				}
-			}
-			break;
-		default:
-			break;
 		}
-		
 		return free;
 	}
 	
+	// takes a player char as it could be used to check opponent's moves as well
 	protected Move[] movesAvailable(char player){
 		byte[][] b = this.board.getTiles();
 		
 		ArrayList<Move> moves = new ArrayList<Move>();
 		
-		switch(player){
-		case 'H':
-			for(int y = 0; y < b.length; y++){
-				for(int x = 0; x < b.length; x++){
-					if(player == Board.BLOCKS[b[x][y]]){
-						// get available horizontal moves
-						
-						// check up 
-						if(Board.withinBounds(b.length, x, y + 1) && b[x][y+1] == Board.FREE){
-							moves.add(new Move(x,y,Move.Direction.UP));
-						}
-						
-						// check right
-						if(x == b.length - 1 || Board.withinBounds(b.length, x + 1, y) && b[x+1][y] == Board.FREE){
-							moves.add(new Move(x,y,Move.Direction.RIGHT));
-						}
-						
-						// check down
-						if(Board.withinBounds(b.length, x, y - 1) && b[x][y-1] == Board.FREE){
-							moves.add(new Move(x,y,Move.Direction.DOWN));
-						}
+		for(int y = 0; y < b.length; y++){
+			for(int x = 0; x < b.length; x++){
+				if(player == Board.BLOCKS[b[x][y]]){
+					if(this.board.validMove(x, y, MOPS.forward(player))){
+						moves.add(new Move(x,y,MOPS.forward(player)));
+					}
+					if(this.board.validMove(x, y, MOPS.right(player))){
+						moves.add(new Move(x,y,MOPS.right(player)));
+					}
+					if(this.board.validMove(x, y, MOPS.left(player))){
+						moves.add(new Move(x,y,MOPS.left(player)));
 					}
 				}
 			}
-			break;
-		case 'V':
-			for(int y = 0; y < b.length; y++){
-				for(int x = 0; x < b.length; x++){
-					if(player == Board.BLOCKS[b[x][y]]){
-						// get available horizontal moves
-						
-						// check up 
-						if(y == b.length - 1 || Board.withinBounds(b.length, x, y + 1) && b[x][y+1] == Board.FREE){
-							moves.add(new Move(x,y,Move.Direction.UP));
-						}
-						
-						// check right
-						if(Board.withinBounds(b.length, x + 1, y) && b[x+1][y] == Board.FREE){
-							moves.add(new Move(x,y,Move.Direction.RIGHT));
-						}
-						
-						// check left
-						if(Board.withinBounds(b.length, x - 1, y) && b[x-1][y] == Board.FREE){
-							moves.add(new Move(x,y,Move.Direction.LEFT));
-						}
-					}
-				}
-			}
-			break;
-			
-		default:
-			break;
 		}
 		
 		return moves.toArray(new Move[moves.size()]);
