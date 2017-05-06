@@ -48,10 +48,6 @@ public class Interplay implements SliderPlayer{
 		// base movement, random
 		Move[] m = this.movesAvailable(this.me);
 		
-		if(m.length == 0){
-			return null;
-		}
-		
 		Move next = m.length > 0 ? m[r.nextInt(m.length)] : null;
 		
 		this.board.movePiece(next.i, next.j, next.d);
@@ -65,12 +61,11 @@ public class Interplay implements SliderPlayer{
 	}
 	
 	public int countMoves(char player){
-		byte[][] b = this.board.getTiles();
 		
 		int free = 0;
-		for(int y = 0; y < b.length; y++){
-			for(int x = 0; x < b.length; x++){
-				if(player == Board.BLOCKS[b[x][y]]){
+		for(int y = 0; y < this.board.getLen(); y++){
+			for(int x = 0; x < this.board.getLen(); x++){
+				if(player == Board.BLOCKS[this.board.tileAt(x, y)]){
 					if(this.board.validMove(x, y, MOPS.forward(player))){
 						free++;
 					}
@@ -88,13 +83,12 @@ public class Interplay implements SliderPlayer{
 	
 	// takes a player char as it could be used to check opponent's moves as well
 	protected Move[] movesAvailable(char player){
-		byte[][] b = this.board.getTiles();
 		
 		ArrayList<Move> moves = new ArrayList<Move>();
 		
-		for(int y = 0; y < b.length; y++){
-			for(int x = 0; x < b.length; x++){
-				if(player == Board.BLOCKS[b[x][y]]){
+		for(int y = 0; y < this.board.getLen(); y++){
+			for(int x = 0; x < this.board.getLen(); x++){
+				if(player == Board.BLOCKS[this.board.tileAt(x, y)]){
 					if(this.board.validMove(x, y, MOPS.forward(player))){
 						moves.add(new Move(x,y,MOPS.forward(player)));
 					}
@@ -109,5 +103,14 @@ public class Interplay implements SliderPlayer{
 		}
 		
 		return moves.toArray(new Move[moves.size()]);
+	}
+	
+	protected boolean isMe(int x, int y){
+		return Board.BLOCKS[this.board.tileAt(x, y)] == this.me;
+	}
+	
+	protected int heuristic(){
+		Random r = new Random();
+		return r.nextInt(50);
 	}
 }

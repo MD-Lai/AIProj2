@@ -1,5 +1,6 @@
 package utils;
 
+import aiproj.slider.Move;
 import aiproj.slider.Move.Direction;;
 
 public class MOPS{
@@ -34,5 +35,9 @@ public class MOPS{
 		default:
 			return Direction.LEFT;
 		}
+	}
+	
+	public static boolean equalMoves(Move m1, Move m2){
+		return m1 != null && m2 != null && m1.i == m2.i && m1.j == m2.j && m1.d == m2.d;
 	}
 }

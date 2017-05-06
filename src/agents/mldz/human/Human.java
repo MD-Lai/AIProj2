@@ -6,10 +6,10 @@ import utils.MOPS;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.IOException;
 
 import agents.mldz.Interplay;
 
-import java.io.IOException;
 
 /** Human controlled agent 
  */
@@ -27,6 +27,7 @@ public class Human extends Interplay{
 
 	@Override
 	public Move move() {
+		
 		// so the petty human knows what his coords are
 		humaniseBoard();
 		
@@ -60,7 +61,10 @@ public class Human extends Interplay{
 				System.out.println("invalid move: " + command[2]+ " (f,l,r) for forward left or right");
 				throw new IOException();
 			}
-			board.movePiece(x, y, dir);
+			
+			// ahh we have a move
+			// update board and return move
+			this.board.movePiece(x, y, dir);
 			return new Move(x,y,dir);
 		}
 		catch(IOException e){
@@ -70,22 +74,22 @@ public class Human extends Interplay{
 	}
 	
 	public void humaniseBoard(){
-		byte[][] b = this.board.getTiles();
+		
 		
 		String str = "";
 		
-		for(int y = b.length - 1; y >= 0; --y){
+		for(int y = this.board.getLen() - 1; y >= 0; --y){
 			str += y + " ";
-			for(int x = 0; x < b.length; ++x){
-				str += (Board.BLOCKS[b[x][y]]);
-				if(x != b.length-1){
+			for(int x = 0; x < this.board.getLen(); ++x){
+				str += (Board.BLOCKS[this.board.tileAt(x, y)]);
+				if(x != this.board.getLen()-1){
 					str += (" ");
 				}
 			}
 			str += "\n";
 		}
 		str += "x ";
-		for(int f = 0; f < b.length; ++f){
+		for(int f = 0; f < this.board.getLen(); ++f){
 			str += f + " ";
 		}
 		str += "\n";
