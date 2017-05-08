@@ -257,4 +257,63 @@ public class Board {
 		
 		return str;
 	}
+
+	public int manhattan(int direction) {
+		int dim = board.length;
+		int minDist = dim;
+		if (direction == VERT) {
+			for(int x = 0; x < dim; x++) {
+				for(int y = 0; y < dim; y++) {
+					if (board[x][y] == VERT) {
+						minDist = Math.min(minDist, pManhattan(x, y));
+					}
+				}
+			}
+			return minDist;
+		} else if (direction == HORI) {
+			for(int x = 0; x < dim; x++) {
+				for(int y = 0; y < dim; y++) {
+					if (board[x][y] == HORI) {
+						minDist = Math.min(minDist, pManhattan(x, y));
+					}
+				}
+			}
+			return minDist;
+		} else {
+			return dim;
+		}
+	}
+
+	private int pManhattan(int x, int y) {
+		int dim = board.length;
+		if(board[x][y] == VERT) {
+			return dim - y + forwardBlocked(x, y);
+		} else if(board[x][y] == HORI) {
+			return dim - x + forwardBlocked(x, y);
+		} else {
+			return dim;
+		}
+	}
+
+	private int forwardBlocked(int x, int y) {
+		int dim = board.length;
+		if(board[x][y] == VERT) {
+			for(int j = y + 1; j < dim; j ++) {
+				if(board[x][j] == BLCK) {
+					return 1;
+				}
+			}
+			return 0;
+		} else if(board[x][y] == HORI) {
+			for(int i = x + 1; i < dim; i++) {
+				if(board[i][y] == BLCK) {
+					return 1;
+				}
+			}
+			return 0;
+		} else {
+			System.out.println("Block is not occupied by a piece.");
+			return dim;
+		}
+	}
 }
