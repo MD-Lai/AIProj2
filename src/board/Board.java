@@ -86,52 +86,59 @@ public class Board {
 		this.board[x][y] = FREE;
 	}
 	
-	// returns (x,y,type) of first collision starting from (x,y), casting vertically
-	// if type is 1, signifies edge of board
-	public byte[] castVert(int x, int y, boolean forward){
-		int dir = forward ? 1 : -1;
+	// newly realised method to find collision 
+	// returns (x,y) of first collision starting at (x,y), casting along directions specified
+	// intended use is cast(x,y,dv,dv) for straight casts, cast(x,y,dv,dh) for diagonal casts
+	// note 2nd direction will override first direction if along same axis
+	public byte[] cast(int x, int y, Move.Direction v, Move.Direction h){
+		int yDir = 0;
+		int xDir = 0;
+		byte[] coll = new byte[2];
 		
-		while(withinBounds(x,y + dir) && board[x][y + dir] == FREE){
-			y += dir;
+		switch(v){
+		case UP:
+			yDir = 1;
+			break;
+		case DOWN:
+			yDir = -1;
+			break;
+		case RIGHT:
+			xDir = 1;
+			break;
+		case LEFT:
+			xDir = -1;
+			break;
 		}
-		if(!withinBounds(x,y + dir)){
-			return new byte[] {(byte)x,(byte)y,1};
+		
+		switch(h){
+		case UP:
+			yDir = 1;
+			break;
+		case DOWN:
+			yDir = -1;
+			break;
+		case RIGHT:
+			xDir = 1;
+			break;
+		case LEFT:
+			xDir = -1;
+			break;
+		}
+		
+		while(withinBounds(x + xDir,y + yDir) && board[x + xDir][y + yDir] == FREE){
+			y += yDir;
+			x += xDir;
+		}
+		if(!withinBounds(x + xDir,y + yDir)){
+			coll[0] = (byte)x;
+			coll[1] = (byte)y;
 		} 
-		y += dir;
-		return new byte[] {(byte)x,(byte)(y),0};
-	}
-	
-	// returns (x,y,type) of first collision starting from (x,y), casting Horizontally
-	// if type is 1, signifies edge of board
-	public byte[] castHori(int x, int y, boolean right){
-		int dir = right ? 1 : -1;
 		
-		while(withinBounds(x + dir, y) && board[x + dir][y] == FREE){
-			x += dir;
-		}
-		if(!withinBounds(x + dir,y)){
-			return new byte[] {(byte)x,(byte)y,1};
-		}
-		x += dir;
-		return new byte[] {(byte)(x),(byte)y,0};
-	}
-	
-	// returns (x,y,type) of first collision starting from (x,y), casting Diagonally according to up and right
-	// if type is 1, signifies edge of board
-	public byte[] castDiag(int x, int y, boolean up, boolean right){
-		int dirx = up ? 1 : -1;
-		int diry = up ? 1 : -1;
+		coll[0] = (byte)(x + xDir);
+		coll[1] = (byte)(y + yDir);
 		
-		while(withinBounds(x + dirx, y + diry) && board[x + dirx][y + diry] == FREE){
-			x += dirx;
-			y += diry;
-		}
-		if(!withinBounds(x + dirx, y + diry)){
-			return new byte[] {(byte)x,(byte)y,board[x][y]};
-		}
-		x += dirx;
-		y += diry;
-		return new byte[] {(byte)x,(byte)y,board[x][y]};
+		return coll;
+		
 	}
 	
 	// checks if a given x and y are within bounds
@@ -224,6 +231,14 @@ public class Board {
 	
 	public byte[][] getTiles(){
 		return this.board;
+	}
+	
+	public int getLen(){
+		return this.board.length;
+	}
+	
+	public int tileAt(int x, int y){
+		return this.board[x][y];
 	}
 	
 	public String toString(){
