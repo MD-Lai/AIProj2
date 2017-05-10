@@ -279,27 +279,29 @@ public class Board {
 		return str;
 	}
 
-	public int manhattan(int direction) {
+	public int manhattan(Move m) {
 		int dim = board.length;
-		int minDist = dim;
-		if (direction == VERT) {
+		int pieceType = this.board[m.i][m.j];
+		Board newBoard = new Board(this.board, m);
+		int manDist = 0;
+		if (pieceType == VERT) {
 			for(int x = 0; x < dim; x++) {
 				for(int y = 0; y < dim; y++) {
-					if (board[x][y] == VERT) {
-						minDist = Math.min(minDist, pManhattan(x, y));
+					if ((newBoard.getTiles())[x][y] == VERT) {
+						manDist += pManhattan(x, y);
 					}
 				}
 			}
-			return minDist;
-		} else if (direction == HORI) {
+			return manDist;
+		} else if (pieceType == HORI) {
 			for(int x = 0; x < dim; x++) {
 				for(int y = 0; y < dim; y++) {
-					if (board[x][y] == HORI) {
-						minDist = Math.min(minDist, pManhattan(x, y));
+					if ((newBoard.getTiles())[x][y] == HORI) {
+						manDist += pManhattan(x, y);
 					}
 				}
 			}
-			return minDist;
+			return manDist;
 		} else {
 			return dim;
 		}
