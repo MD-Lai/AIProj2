@@ -43,16 +43,23 @@ public class Interplay implements SliderPlayer{
 	}
 
 	@Override
+	// Handles accepting a new move and updating board state.
+	// Saves each player from having to have update(next)
 	public Move move() {
-		Random r = new Random();
-		// base movement, random
-		Move[] m = this.movesAvailable(this.me);
 		
-		Move next = m.length > 0 ? m[r.nextInt(m.length)] : null;
+		Move next = nextMove();
 		
 		update(next);
 		
 		return next;
+	}
+	
+	public Move nextMove(){
+		Random r = new Random();
+		// base movement, random
+		Move[] m = this.movesAvailable(this.me);
+		
+		return m.length > 0 ? m[r.nextInt(m.length)] : null;
 	}
 	
 	// TODO method to log move

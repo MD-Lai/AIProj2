@@ -17,16 +17,8 @@ public class ForwardFirst extends Interplay {
 	// V: Up Left Right   (Forward Left Right)
 	// H: Right Down Left (Forward Right Left)
 	// reasoning is that it is preferred to go forward, then behind enemy lines, then in front of enemy lines
-	public Move move(){
-		
-		Move next = nextForward();
-		
-		update(next);
-		
-		return next;
-	}
-	
-	private Move nextForward(){
+	@Override
+	public Move nextMove(){
 		int x, y;
 		
 		// don't put this against itself

@@ -6,7 +6,8 @@ import board.Board;
 
 public class Heuristic extends Interplay{
 	
-	public Move move(){
+	@Override
+	public Move nextMove(){
 		Move best = null;
 		int score = -9999999;
 		int tempScore = -999999999;
@@ -22,7 +23,6 @@ public class Heuristic extends Interplay{
 			System.out.println(nb.toString());
 			
 		}
-		update(best);
 		System.out.println("move chosen\n");
 		return best;
 	}
