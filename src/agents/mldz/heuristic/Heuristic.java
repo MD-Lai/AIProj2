@@ -9,21 +9,23 @@ public class Heuristic extends Interplay{
 	@Override
 	public Move nextMove(){
 		Move best = null;
-		int score = -9999999;
-		int tempScore = -999999999;
+		int score = Integer.MIN_VALUE;
+		int tempScore = Integer.MIN_VALUE;
+		Board eval;
 		
-		System.out.println(this.me + " Boards after possible moves");
+		//System.out.println(this.me + " Boards after possible moves");
 		for(Move m : this.movesAvailable(this.me)){
-			tempScore = this.heuristic(m);
+			eval = new Board(this.board.getTiles(), m);
+			tempScore = eval.evaluate(this.me);
 			if(tempScore > score){
 				score = tempScore;
 				best = m;
 			}
-			Board nb = new Board(this.board.getTiles(), m);
-			System.out.println(nb.toString());
+			//Board nb = new Board(this.board.getTiles(), m);
+			//System.out.println(nb.toString());
 			
 		}
-		System.out.println("move chosen\n");
+		//System.out.println("move chosen\n");
 		return best;
 	}
 }

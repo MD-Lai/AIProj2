@@ -278,11 +278,60 @@ public class Board {
 		
 		return str;
 	}
-
-	public int manhattan(int direction) {
+	
+	public int evaluate(char player){
+		return straightDist(player) + enemiesBlocked(player);
+	}
+	
+	private int straightDist(char player){
+		int hDist = 0;
+		int vDist = 0;
+		// count for each H, dist = dim(board) - curr(x)
+		// count for each V, dist = dim(board) - curr(y)
+		for(int y = 0; y < this.board.length; y++){
+			for(int x = 0; x < this.board.length; x++){
+				if(this.tileAt(x, y) == HORI){
+					hDist += this.board.length - x;
+				}
+				else if(this.tileAt(x, y) == VERT){
+					vDist += this.board.length - y;
+				}
+				
+			}
+		}
+		// return (opponents dist) - (my dist) -> trying to maximise this 
+		// trying to reduce your distance
+		return player == 'V' ? hDist - vDist : vDist - hDist;
+	}
+	
+	private int enemiesBlocked(char player){
+		int nblocked = 0;
+		// if H: look right
+		switch(player){
+		case 'H':
+			for(int y = 0; y < this.board.length; y++){
+				for(int x = 0; x < this.board.length; x++){
+					if(this.withinBounds(x, y-1) && this.tileAt(x, y-1) == VERT){
+						nblocked++;
+					}
+				}
+			}
+		// if V look left
+		case 'V':
+			for(int y = 0; y < this.board.length; y++){
+				for(int x = 0; x < this.board.length; x++){
+					if(this.withinBounds(x-1, y) && this.tileAt(x-1, y) == VERT){
+						nblocked++;
+					}
+				}
+			}
+		}
+		return nblocked;
+	}
+	public int manhattan(char player) {
 		int dim = board.length;
 		int minDist = dim;
-		if (direction == VERT) {
+		if (player == 'V') {
 			for(int x = 0; x < dim; x++) {
 				for(int y = 0; y < dim; y++) {
 					if (board[x][y] == VERT) {
@@ -291,7 +340,7 @@ public class Board {
 				}
 			}
 			return minDist;
-		} else if (direction == HORI) {
+		} else if (player == 'H') {
 			for(int x = 0; x < dim; x++) {
 				for(int y = 0; y < dim; y++) {
 					if (board[x][y] == HORI) {

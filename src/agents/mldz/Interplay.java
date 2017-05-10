@@ -115,8 +115,10 @@ public class Interplay implements SliderPlayer{
 		return Board.BLOCKS[this.board.tileAt(x, y)] == this.me;
 	}
 	
-	protected int heuristic(Move m){
+	protected int heuristic(Move m, char player){
 		Random r = new Random();
 		return 50 - r.nextInt(50);
 	}
+	
+	
 }
