@@ -50,7 +50,7 @@ public class Interplay implements SliderPlayer{
 		
 		Move next = m.length > 0 ? m[r.nextInt(m.length)] : null;
 		
-		this.board.movePiece(next.i, next.j, next.d);
+		update(next);
 		
 		return next;
 	}
@@ -88,7 +88,7 @@ public class Interplay implements SliderPlayer{
 		
 		for(int y = 0; y < this.board.getLen(); y++){
 			for(int x = 0; x < this.board.getLen(); x++){
-				if(player == Board.BLOCKS[this.board.tileAt(x, y)]){
+				if(player == this.board.charAt(x, y)){
 					if(this.board.validMove(x, y, MOPS.forward(player))){
 						moves.add(new Move(x,y,MOPS.forward(player)));
 					}
@@ -101,7 +101,6 @@ public class Interplay implements SliderPlayer{
 				}
 			}
 		}
-		
 		return moves.toArray(new Move[moves.size()]);
 	}
 	
@@ -109,8 +108,8 @@ public class Interplay implements SliderPlayer{
 		return Board.BLOCKS[this.board.tileAt(x, y)] == this.me;
 	}
 	
-	protected int heuristic(){
+	protected int heuristic(Move m){
 		Random r = new Random();
-		return r.nextInt(50);
+		return 50 - r.nextInt(50);
 	}
 }

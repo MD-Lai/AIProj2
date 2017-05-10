@@ -4,11 +4,11 @@ import aiproj.slider.Move;
 
 public class Board {
 	
-	public static final int FREE = 0;
-	public static final int BLCK = 1;
-	public static final int VERT = 2;
-	public static final int HORI = 3;
-	public static final char[] BLOCKS = {'+', 'B', 'V', 'H'};
+	public static final int FREE = 0; // Free block
+	public static final int BLCK = 1; // Blocked block
+	public static final int VERT = 2; // Vertical player piece
+	public static final int HORI = 3; // Horizontal player piece
+	public static final char[] BLOCKS = {'+', 'B', 'V', 'H'}; // character representation of tile use as BLOCKS[board[x][y]]
 	
 	private byte[][] board;
 	
@@ -52,6 +52,22 @@ public class Board {
 				this.board[x][y] = bBoard[x][y];
 			}
 		}
+	}
+	
+	public Board(byte[][] bBoard, Move m){
+		// create a new board updated with a new move
+		
+		int dim = bBoard.length;
+		
+		this.board = new byte[dim][dim];
+		
+		for(int y = 0; y < dim; ++y){
+			for(int x = 0; x < dim; ++x){
+				this.board[x][y] = bBoard[x][y];
+			}
+		}
+		
+		this.movePiece(m.i, m.j, m.d);
 	}
 	
 	// blindly moves a piece, up to user to give a valid move
@@ -185,6 +201,7 @@ public class Board {
 				if(withinBounds(x - 1, y) && board[x-1][y] == Board.FREE){
 					return true;
 				}
+				break;
 			default:
 				return false;
 			}
@@ -239,6 +256,10 @@ public class Board {
 	
 	public int tileAt(int x, int y){
 		return this.board[x][y];
+	}
+	
+	public char charAt(int x, int y){
+		return BLOCKS[this.board[x][y]];
 	}
 	
 	public String toString(){

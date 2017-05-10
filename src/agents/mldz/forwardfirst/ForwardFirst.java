@@ -21,9 +21,7 @@ public class ForwardFirst extends Interplay {
 		
 		Move next = nextForward();
 		
-		if(next != null){
-			this.board.movePiece(next.i, next.j, next.d);
-		}
+		update(next);
 		
 		return next;
 	}
