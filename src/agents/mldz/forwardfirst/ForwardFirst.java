@@ -1,6 +1,7 @@
 package agents.mldz.forwardfirst;
 
 import aiproj.slider.Move;
+import board.Board;
 import utils.MOPS;
 
 import agents.mldz.Interplay;
@@ -23,7 +24,7 @@ public class ForwardFirst extends Interplay {
 		
 		// don't put this against itself
 		switch(this.me){
-		case 'H':
+		case Board.HORI:
 			// scan column by column top to bottom left to right
 			// first pass forward
 			for(x = 0; x < this.board.getLen(); x++){
@@ -57,7 +58,7 @@ public class ForwardFirst extends Interplay {
 				}
 			}
 			break;
-		case 'V':
+		case Board.VERT:
 			// scan row by row right to left bottom to top
 			// first pass forward
 			for(y = 0; y < this.board.getLen(); y++){

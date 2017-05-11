@@ -1,6 +1,9 @@
 package board;
 
+import java.util.ArrayList;
+
 import aiproj.slider.Move;
+import utils.MOPS;
 
 public class Board {
 	
@@ -268,7 +271,7 @@ public class Board {
 		for(int y = this.board.length - 1; y >= 0; --y){
 			
 			for(int x = 0; x < this.board.length; ++x){
-				str += (BLOCKS[this.board[x][y]]);
+				str += this.charAt(x, y);
 				if(x != this.board.length-1){
 					str += (" ");
 				}
@@ -279,78 +282,157 @@ public class Board {
 		return str;
 	}
 	
-	public int evaluate(char player){
-		return straightDist(player) + enemiesBlocked(player);
+	/**
+	 * Gives a rough estimation of the "goodness" of a board in a given state for a given player
+	 * Attempts to sum up the value of current board state
+	 * @param player player to evaluate for
+	 * @return approximate value of a current board state
+	 */
+	public int evaluate(byte player){
+		// heuristic evaluation of board
+		int w1 = 2;
+		int w2 = 2; 
+		int w3 = 4;
+		int w4 = 90;
+		//     move forward             number of enemies blocked     pieces relative to opponent
+		return w1 * manhattan(player) + w2 * enemiesBlocked(player) + w3 * relativePieces(player) + w4 * hasWon(player);
 	}
 	
-	private int straightDist(char player){
-		int hDist = 0;
-		int vDist = 0;
+	/**
+	 * Checks if a particular state of the game is finished or not
+	 * @return true if a game is finished
+	 */
+	public boolean hasFinished(){
+		int hp = 0;
+		int vp = 0;
+		for(int y = 0; y < this.board.length; y++){
+			for(int x = 0; x < this.board.length; x++){
+				if(this.tileAt(x, y) == HORI){
+					++hp;
+				}
+				else if(this.tileAt(x, y) == VERT){
+					++vp;
+				}
+			}
+		}
+		return hp == 0 || vp == 0;
+	}
+	
+	private int hasWon(byte player){
+		int hp = 0;
+		int vp = 0;
+		for(int y = 0; y < this.board.length; y++){
+			for(int x = 0; x < this.board.length; x++){
+				if(this.tileAt(x, y) == HORI){
+					++hp;
+				}
+				else if(this.tileAt(x, y) == VERT){
+					++vp;
+				}
+			}
+		}
+		if(hp == 0){
+			// horizontal won
+			return player == HORI ? 1 : -1;
+		}
+		else if(vp == 0){
+			// vertical won
+			return player == VERT ? 1 : -1;
+		}
+		else{
+			// nobody won
+			return 0;
+		}
+	}
+	
+	/**
+	 * How many pieces the opponent has relative to the player
+	 * Higher is better, more opponent pieces relative to yours
+	 * @param player player to evaluate for
+	 * @return n opponent pieces - n player's pieces
+	 */
+	private int relativePieces(byte player){
+		int hp = 0;
+		int vp = 0;
 		// count for each H, dist = dim(board) - curr(x)
 		// count for each V, dist = dim(board) - curr(y)
 		for(int y = 0; y < this.board.length; y++){
 			for(int x = 0; x < this.board.length; x++){
 				if(this.tileAt(x, y) == HORI){
-					hDist += this.board.length - x;
+					++hp;
 				}
 				else if(this.tileAt(x, y) == VERT){
-					vDist += this.board.length - y;
+					vp++;
 				}
 				
 			}
 		}
-		// return (opponents dist) - (my dist) -> trying to maximise this 
-		// trying to reduce your distance
-		return player == 'V' ? hDist - vDist : vDist - hDist;
+		// opponent pieces - my pieces 
+		return player == VERT ? hp - vp : vp - hp;
 	}
 	
-	private int enemiesBlocked(char player){
+	/**
+	 * How many pieces of the opponent are blocked, either by player or blocked tiles
+	 * @param player player to evaluate for
+	 * @return n opponent pieces in a forward blocked state
+	 */
+	private int enemiesBlocked(byte player){
 		int nblocked = 0;
 		// if H: look right
 		switch(player){
-		case 'H':
+		case HORI:
 			for(int y = 0; y < this.board.length; y++){
 				for(int x = 0; x < this.board.length; x++){
-					if(this.withinBounds(x, y-1) && this.tileAt(x, y-1) == VERT){
-						nblocked++;
+					if(this.tileAt(x, y) == HORI){
+						if(this.withinBounds(x, y-1) && (this.tileAt(x, y-1) == VERT || this.tileAt(x, y-1) == BLCK)){
+							nblocked++;
+						}
 					}
 				}
 			}
 		// if V look left
-		case 'V':
+		case VERT:
 			for(int y = 0; y < this.board.length; y++){
 				for(int x = 0; x < this.board.length; x++){
-					if(this.withinBounds(x-1, y) && this.tileAt(x-1, y) == VERT){
-						nblocked++;
+					if(this.tileAt(x, y) == VERT){
+						if(this.withinBounds(x-1, y) && (this.tileAt(x-1, y) == HORI || this.tileAt(x-1, y) == BLCK)){
+							nblocked++;
+						}
 					}
 				}
 			}
 		}
 		return nblocked;
 	}
-	public int manhattan(Move m) {
+	
+	/** 
+	 * Distance a piece has to the edge of the board + any blocks it encounters
+	 * Value is negative as a larger distance is a bigger DISadvantage
+	 * @param player which player to check
+	 * @return negative value of distance to edge of board +1 for any blocks a piece encounters
+	 */
+	public int manhattan(byte player) {
 		int dim = board.length;
-		int pieceType = this.board[m.i][m.j];
-		Board newBoard = new Board(this.board, m);
-		int manDist = 0;
-		if (pieceType == VERT) {
+		int mandist = 0;
+		
+		if (player == HORI) {
 			for(int x = 0; x < dim; x++) {
 				for(int y = 0; y < dim; y++) {
-					if ((newBoard.getTiles())[x][y] == VERT) {
-						manDist += pManhattan(x, y);
+					if (this.tileAt(x, y) == VERT) {
+						mandist += pManhattan(x, y);
 					}
 				}
 			}
-			return manDist;
-		} else if (pieceType == HORI) {
+		return -mandist;
+		} else if (player == VERT) {
 			for(int x = 0; x < dim; x++) {
 				for(int y = 0; y < dim; y++) {
-					if ((newBoard.getTiles())[x][y] == HORI) {
-						manDist += pManhattan(x, y);
+					if (this.tileAt(x, y) == HORI) {
+						mandist += pManhattan(x, y);
 					}
 				}
 			}
-			return manDist;
+		return -mandist;
 		} else {
 			return dim;
 		}
@@ -372,14 +454,14 @@ public class Board {
 		if(board[x][y] == VERT) {
 			for(int j = y + 1; j < dim; j ++) {
 				if(board[x][j] == BLCK) {
-					return 1;
+					return 2;
 				}
 			}
 			return 0;
 		} else if(board[x][y] == HORI) {
 			for(int i = x + 1; i < dim; i++) {
 				if(board[i][y] == BLCK) {
-					return 1;
+					return 2;
 				}
 			}
 			return 0;
@@ -387,5 +469,42 @@ public class Board {
 			System.out.println("Block is not occupied by a piece.");
 			return dim;
 		}
+	}
+	
+	/**
+	 * Entire list of available moves to a particular player
+	 * Scans board twice, once for vertical moves, once for right and left moves, in that order
+	 * @param player player to evaluate for
+	 * @return array of moves available for that player
+	 */
+	public Move[] movesAvailable(byte player){
+		
+		ArrayList<Move> moves = new ArrayList<Move>();
+		// scans array 2 times, once for forward, once for both sideways
+		// when picking a move later, ties are broken by pieces which came in first
+		// ideally would move forward first then sideways
+		
+		for(int y = 0; y < this.board.length; y++){
+			for(int x = 0; x < this.board.length; x++){
+				if(player == this.tileAt(x, y)){
+					if(this.validMove(x, y, MOPS.forward(player))){
+						moves.add(new Move(x,y,MOPS.forward(player)));
+					}
+				}
+			}
+		}
+		for(int y = 0; y < this.board.length; y++){
+			for(int x = 0; x < this.board.length; x++){
+				if(player == this.tileAt(x, y)){
+					if(this.validMove(x, y, MOPS.right(player))){
+						moves.add(new Move(x,y,MOPS.right(player)));
+					}
+					if(this.validMove(x, y, MOPS.left(player))){
+						moves.add(new Move(x,y,MOPS.left(player)));
+					}
+				}
+			}
+		}
+		return moves.toArray(new Move[moves.size()]);
 	}
 }

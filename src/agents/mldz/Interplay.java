@@ -15,8 +15,8 @@ import aiproj.slider.Move;
 public class Interplay implements SliderPlayer{
 	
 	protected Board board;
-	protected char me;
-	protected char op;
+	protected byte me;
+	protected byte op;
 	
 	@Override
 	public void init(int dimension, String board, char player) {
@@ -24,12 +24,12 @@ public class Interplay implements SliderPlayer{
 		this.board = new Board(Board.convertBoard(dimension, board));
 		
 		if(player == 'H'){
-			this.me = 'H';
-			this.op = 'V';
+			this.me = Board.HORI;
+			this.op = Board.VERT;
 		}
 		else{
-			this.me = 'V';
-			this.op = 'H';
+			this.me = Board.VERT;
+			this.op = Board.HORI;
 		}
 		
 	}
@@ -57,7 +57,7 @@ public class Interplay implements SliderPlayer{
 	public Move nextMove(){
 		Random r = new Random();
 		// base movement, random
-		Move[] m = this.movesAvailable(this.me);
+		Move[] m = this.board.movesAvailable(this.me);
 		
 		return m.length > 0 ? m[r.nextInt(m.length)] : null;
 	}
@@ -67,7 +67,7 @@ public class Interplay implements SliderPlayer{
 		
 	}
 	
-	public int countMoves(char player){
+	public int countMoves(byte player){
 		
 		int free = 0;
 		for(int y = 0; y < this.board.getLen(); y++){
@@ -88,17 +88,27 @@ public class Interplay implements SliderPlayer{
 		return free;
 	}
 	
+	/*
 	// takes a player char as it could be used to check opponent's moves as well
-	protected Move[] movesAvailable(char player){
+	protected Move[] movesAvailable(byte player){
 		
 		ArrayList<Move> moves = new ArrayList<Move>();
+		// scans array 2 times, once for forward, once for both sideways
+		// when picking a move later, ties are broken by pieces which came in first
+		// ideally would move forward first then sideways
 		
 		for(int y = 0; y < this.board.getLen(); y++){
 			for(int x = 0; x < this.board.getLen(); x++){
-				if(player == this.board.charAt(x, y)){
+				if(player == this.board.tileAt(x, y)){
 					if(this.board.validMove(x, y, MOPS.forward(player))){
 						moves.add(new Move(x,y,MOPS.forward(player)));
 					}
+				}
+			}
+		}
+		for(int y = 0; y < this.board.getLen(); y++){
+			for(int x = 0; x < this.board.getLen(); x++){
+				if(player == this.board.tileAt(x, y)){
 					if(this.board.validMove(x, y, MOPS.right(player))){
 						moves.add(new Move(x,y,MOPS.right(player)));
 					}
@@ -110,15 +120,8 @@ public class Interplay implements SliderPlayer{
 		}
 		return moves.toArray(new Move[moves.size()]);
 	}
-	
+	*/
 	protected boolean isMe(int x, int y){
-		return Board.BLOCKS[this.board.tileAt(x, y)] == this.me;
-	}
-	
-	protected int heuristic(Move m, char player){
-		Random r = new Random();
-		return 50 - r.nextInt(50);
-	}
-	
-	
+		return this.board.tileAt(x, y) == this.me;
+	}	
 }
