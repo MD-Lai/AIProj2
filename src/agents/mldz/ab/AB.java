@@ -18,7 +18,7 @@ public class AB extends Interplay{
 		Board nb;
 		for(Move m : this.board.movesAvailable(this.me)){
 			nb = new Board(this.board.getTiles(), m);
-			tempScore = abMax(nb, Integer.MIN_VALUE, Integer.MAX_VALUE, this.me, 8);
+			tempScore = abMax(nb, Integer.MIN_VALUE, Integer.MAX_VALUE, this.me, 6);
 			
 			if(tempScore > highScore){
 				highScore = tempScore;
@@ -43,7 +43,7 @@ public class AB extends Interplay{
 			else{
 				np = this.me;
 			}
-			alpha = Integer.max(alpha, abMin(b, alpha, beta, np, folds - 1));
+			alpha = Integer.max(alpha, abMin(nb, alpha, beta, np, folds - 1));
 			if(alpha >= beta){
 				return beta;
 			}
@@ -66,7 +66,7 @@ public class AB extends Interplay{
 			else{
 				np = this.me;
 			}
-			beta = Integer.min(beta, abMax(b, alpha, beta, np, folds - 1));
+			beta = Integer.min(beta, abMax(nb, alpha, beta, np, folds - 1));
 			if(beta <= alpha){
 				return alpha;
 			}
