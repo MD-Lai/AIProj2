@@ -5,7 +5,6 @@ import aiproj.slider.Move;
 import board.Board;
 
 public class Minimax extends Interplay{
-	
 	public Move nextMove(){
 		return minimaxDecision();
 	}
@@ -33,16 +32,16 @@ public class Minimax extends Interplay{
 	}
 	
 	private int minimaxVal(Board b, byte player, int folds){
-		Board nb;
 		if(b.hasFinished() || folds == 0){
 			return b.evaluate(player);
 		}
+		// my turn to move, max
 		else if(player == this.op){
+			Board nb;
 			int score = Integer.MIN_VALUE;
 			int tempScore = Integer.MIN_VALUE;
-			// my turn to move, max
 			for(Move m : b.movesAvailable(this.me)){
-				nb = new Board(this.board.getTiles(), m);
+				nb = new Board(b.getTiles(), m);
 				
 				tempScore = minimaxVal(nb, this.me, folds - 1);
 				
@@ -52,13 +51,14 @@ public class Minimax extends Interplay{
 			}
 			return score;
 		}
+		// opponent's turn to move, min
 		else{
+			Board nb;
 			int score = Integer.MAX_VALUE;
 			int tempScore = Integer.MAX_VALUE;
 
-			// opponent's turn to move, min
 			for(Move m : b.movesAvailable(this.op)){
-				nb = new Board(this.board.getTiles(), m);
+				nb = new Board(b.getTiles(), m);
 				
 				// evaluate board score for ME given opponent's moves
 				tempScore = minimaxVal(nb, this.me, folds - 1);
@@ -70,4 +70,5 @@ public class Minimax extends Interplay{
 			return score;
 		}
 	}
+	
 }

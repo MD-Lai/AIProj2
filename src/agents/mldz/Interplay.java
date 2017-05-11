@@ -67,27 +67,6 @@ public class Interplay implements SliderPlayer{
 		
 	}
 	
-	public int countMoves(byte player){
-		
-		int free = 0;
-		for(int y = 0; y < this.board.getLen(); y++){
-			for(int x = 0; x < this.board.getLen(); x++){
-				if(player == Board.BLOCKS[this.board.tileAt(x, y)]){
-					if(this.board.validMove(x, y, MOPS.forward(player))){
-						free++;
-					}
-					if(this.board.validMove(x, y, MOPS.right(player))){
-						free++;
-					}
-					if(this.board.validMove(x, y, MOPS.left(player))){
-						free++;
-					}
-				}
-			}
-		}
-		return free;
-	}
-	
 	/*
 	// takes a player char as it could be used to check opponent's moves as well
 	protected Move[] movesAvailable(byte player){
