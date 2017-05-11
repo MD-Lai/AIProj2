@@ -291,7 +291,7 @@ public class Board {
 	public int evaluate(byte player){
 		// heuristic evaluation of board
 		int w1 = 2;
-		int w2 = 2; 
+		int w2 = 1; 
 		int w3 = 4;
 		int w4 = 90;
 		//     move forward             number of enemies blocked     pieces relative to opponent

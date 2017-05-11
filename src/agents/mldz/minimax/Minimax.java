@@ -19,7 +19,7 @@ public class Minimax extends Interplay{
 		for(Move m : this.board.movesAvailable(this.me)){
 			
 			nb = new Board(this.board.getTiles(), m);
-			tempScore = minimaxVal(nb, this.me, 6);
+			tempScore = minimaxVal(nb, this.me, 4);
 			
 			if(tempScore > highScore){
 				highScore = tempScore;
@@ -33,13 +33,13 @@ public class Minimax extends Interplay{
 	}
 	
 	private int minimaxVal(Board b, byte player, int folds){
-		int score = Integer.MIN_VALUE;
-		int tempScore = Integer.MIN_VALUE;
 		Board nb;
 		if(b.hasFinished() || folds == 0){
 			return b.evaluate(player);
 		}
 		else if(player == this.op){
+			int score = Integer.MIN_VALUE;
+			int tempScore = Integer.MIN_VALUE;
 			// my turn to move, max
 			for(Move m : b.movesAvailable(this.me)){
 				nb = new Board(this.board.getTiles(), m);
@@ -50,19 +50,24 @@ public class Minimax extends Interplay{
 					score = tempScore;
 				}
 			}
+			return score;
 		}
 		else{
+			int score = Integer.MAX_VALUE;
+			int tempScore = Integer.MAX_VALUE;
+
 			// opponent's turn to move, min
 			for(Move m : b.movesAvailable(this.op)){
 				nb = new Board(this.board.getTiles(), m);
 				
-				tempScore = minimaxVal(nb, this.op, folds - 1);
+				// evaluate board score for ME given opponent's moves
+				tempScore = minimaxVal(nb, this.me, folds - 1);
 				
-				if(tempScore > score){
+				if(tempScore < score){
 					score = tempScore;
 				}
 			}
+			return score;
 		}
-		return score;
 	}
 }
