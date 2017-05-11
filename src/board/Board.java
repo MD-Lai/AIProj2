@@ -292,7 +292,7 @@ public class Board {
 		// heuristic evaluation of board
 		int w1 = 2;
 		int w2 = 1; 
-		int w3 = 4;
+		int w3 = 1;
 		int w4 = 90;
 		//     move forward             number of enemies blocked     pieces relative to opponent
 		return w1 * manhattan(player) + w2 * enemiesBlocked(player) + w3 * relativePieces(player) + w4 * hasWon(player);
@@ -506,5 +506,24 @@ public class Board {
 			}
 		}
 		return moves.toArray(new Move[moves.size()]);
+	}
+	
+	/**
+	 * Counts the number of pieces left on the board
+	 * @param player
+	 * @return
+	 */
+	public int nPieces(byte player){
+		int n = 0;
+		
+		for(int y = 0; y < this.board.length; y++){
+			for(int x = 0; x < this.board.length; x++){
+				if(this.tileAt(x, y) == player){
+					++n;
+				}
+			}
+		}
+		
+		return n;
 	}
 }
