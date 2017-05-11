@@ -2,9 +2,6 @@ package agents.mldz;
 
 import aiproj.slider.SliderPlayer;
 import board.Board;
-import utils.MOPS;
-
-import java.util.ArrayList;
 import java.util.Random;
 
 import aiproj.slider.Move;

@@ -288,11 +288,12 @@ public class Board {
 	 * @param player player to evaluate for
 	 * @return approximate value of a current board state
 	 */
+	// TODO a better evaluation function
 	public int evaluate(byte player){
 		// heuristic evaluation of board
-		int w1 = 2;
-		int w2 = 1; 
-		int w3 = 1;
+		int w1 = 4;
+		int w2 = 2; 
+		int w3 = 3;
 		int w4 = 90;
 		//     move forward             number of enemies blocked     pieces relative to opponent
 		return w1 * manhattan(player) + w2 * enemiesBlocked(player) + w3 * relativePieces(player) + w4 * hasWon(player);
