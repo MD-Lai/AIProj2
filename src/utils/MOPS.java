@@ -1,15 +1,16 @@
 package utils;
 
 import aiproj.slider.Move;
-import aiproj.slider.Move.Direction;;
+import aiproj.slider.Move.Direction;
+import board.Board;;
 
 public class MOPS{
 	
 	// functions to retrieve forward left and right from respective player's perspective
-	public static Direction forward(char player){
+	public static Direction forward(byte player){
 		switch(player){
 		
-		case 'H':
+		case Board.HORI:
 			return Direction.RIGHT;
 		// case 'V': handled by default case	
 		default:
@@ -17,20 +18,20 @@ public class MOPS{
 		}
 	}
 	
-	public static Direction right(char player){
+	public static Direction right(byte player){
 		switch(player){
 		
-		case 'H':
+		case Board.HORI:
 			return Direction.DOWN;
 		default:
 			return Direction.RIGHT;
 		}
 	}
 	
-	public static Direction left(char player){
+	public static Direction left(byte player){
 		switch(player){
 		
-		case 'H':
+		case Board.HORI:
 			return Direction.UP;
 		default:
 			return Direction.LEFT;
