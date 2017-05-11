@@ -282,14 +282,26 @@ public class Board {
 		return str;
 	}
 	
+	/**
+	 * Gives a rough estimation of the "goodness" of a board in a given state for a given player
+	 * Attempts to sum up the value of current board state
+	 * @param player player to evaluate for
+	 * @return approximate value of a current board state
+	 */
 	public int evaluate(byte player){
-		int w1 = 4;
-		int w2 = 4;
-		int w3 = 2;
+		// heuristic evaluation of board
+		int w1 = 2;
+		int w2 = 2; 
+		int w3 = 4;
+		int w4 = 90;
 		//     move forward             number of enemies blocked     pieces relative to opponent
-		return w1 * manhattan(player) + w2 * enemiesBlocked(player) + w3 * relativePieces(player);
+		return w1 * manhattan(player) + w2 * enemiesBlocked(player) + w3 * relativePieces(player) + w4 * hasWon(player);
 	}
 	
+	/**
+	 * Checks if a particular state of the game is finished or not
+	 * @return true if a game is finished
+	 */
 	public boolean hasFinished(){
 		int hp = 0;
 		int vp = 0;
@@ -305,6 +317,40 @@ public class Board {
 		}
 		return hp == 0 || vp == 0;
 	}
+	
+	private int hasWon(byte player){
+		int hp = 0;
+		int vp = 0;
+		for(int y = 0; y < this.board.length; y++){
+			for(int x = 0; x < this.board.length; x++){
+				if(this.tileAt(x, y) == HORI){
+					++hp;
+				}
+				else if(this.tileAt(x, y) == VERT){
+					++vp;
+				}
+			}
+		}
+		if(hp == 0){
+			// horizontal won
+			return player == HORI ? 1 : -1;
+		}
+		else if(vp == 0){
+			// vertical won
+			return player == VERT ? 1 : -1;
+		}
+		else{
+			// nobody won
+			return 0;
+		}
+	}
+	
+	/**
+	 * How many pieces the opponent has relative to the player
+	 * Higher is better, more opponent pieces relative to yours
+	 * @param player player to evaluate for
+	 * @return n opponent pieces - n player's pieces
+	 */
 	private int relativePieces(byte player){
 		int hp = 0;
 		int vp = 0;
@@ -325,6 +371,11 @@ public class Board {
 		return player == VERT ? hp - vp : vp - hp;
 	}
 	
+	/**
+	 * How many pieces of the opponent are blocked, either by player or blocked tiles
+	 * @param player player to evaluate for
+	 * @return n opponent pieces in a forward blocked state
+	 */
 	private int enemiesBlocked(byte player){
 		int nblocked = 0;
 		// if H: look right
@@ -333,7 +384,7 @@ public class Board {
 			for(int y = 0; y < this.board.length; y++){
 				for(int x = 0; x < this.board.length; x++){
 					if(this.tileAt(x, y) == HORI){
-						if(this.withinBounds(x, y-1) && this.tileAt(x, y-1) == VERT){
+						if(this.withinBounds(x, y-1) && (this.tileAt(x, y-1) == VERT || this.tileAt(x, y-1) == BLCK)){
 							nblocked++;
 						}
 					}
@@ -344,7 +395,7 @@ public class Board {
 			for(int y = 0; y < this.board.length; y++){
 				for(int x = 0; x < this.board.length; x++){
 					if(this.tileAt(x, y) == VERT){
-						if(this.withinBounds(x-1, y) && this.tileAt(x-1, y) == HORI){
+						if(this.withinBounds(x-1, y) && (this.tileAt(x-1, y) == HORI || this.tileAt(x-1, y) == BLCK)){
 							nblocked++;
 						}
 					}
@@ -353,33 +404,13 @@ public class Board {
 		}
 		return nblocked;
 	}
-	/*
-	private int forwardMoves(byte player){
-		int nf = 0;
-		switch(player){
-		case HORI:
-			for(int y = 0; y < this.board.length; y++){
-				for(int x = 0; x < this.board.length; x++){
-					if(x == this.board.length - 1 || this.tileAt(x, y) == player && this.tileAt(x + 1, y) == FREE){
-						nf++;
-					}
-				}
-			}
-			break;
-		case VERT:
-			for(int y = 0; y < this.board.length; y++){
-				for(int x = 0; x < this.board.length; x++){
-					if(y == this.board.length - 1 || this.tileAt(x, y) == player && this.tileAt(x, y + 1) == FREE){
-						nf++;
-					}
-				}
-			}
-			break;
-		}
-			
-		return -nf;
-	}
-	*/
+	
+	/** 
+	 * Distance a piece has to the edge of the board + any blocks it encounters
+	 * Value is negative as a larger distance is a bigger DISadvantage
+	 * @param player which player to check
+	 * @return negative value of distance to edge of board +1 for any blocks a piece encounters
+	 */
 	public int manhattan(byte player) {
 		int dim = board.length;
 		int mandist = 0;
@@ -440,7 +471,12 @@ public class Board {
 		}
 	}
 	
-	// takes a player char as it could be used to check opponent's moves as well
+	/**
+	 * Entire list of available moves to a particular player
+	 * Scans board twice, once for vertical moves, once for right and left moves, in that order
+	 * @param player player to evaluate for
+	 * @return array of moves available for that player
+	 */
 	public Move[] movesAvailable(byte player){
 		
 		ArrayList<Move> moves = new ArrayList<Move>();

@@ -19,7 +19,7 @@ public class Minimax extends Interplay{
 		for(Move m : this.board.movesAvailable(this.me)){
 			
 			nb = new Board(this.board.getTiles(), m);
-			tempScore = minimaxVal(nb, this.me, 4);
+			tempScore = minimaxVal(nb, this.me, 6);
 			
 			if(tempScore > highScore){
 				highScore = tempScore;
@@ -28,6 +28,7 @@ public class Minimax extends Interplay{
 			
 			
 		}
+		System.out.println(Board.BLOCKS[this.me] + " " + highScore);
 		return best;
 	}
 	
