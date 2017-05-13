@@ -20,7 +20,7 @@ public class AB extends Interplay{
 		Board nb;
 		for(Move m : this.board.movesAvailable(this.me)){
 			nb = new Board(this.board.getTiles(), m);
-			tempScore = abVal(nb, Integer.MIN_VALUE, Integer.MAX_VALUE, this.me, 6);
+			tempScore = abVal(nb, Integer.MIN_VALUE, Integer.MAX_VALUE, this.me, 8);
 			
 			if(tempScore >= highScore){
 				highScore = tempScore;
@@ -43,6 +43,7 @@ public class AB extends Interplay{
 		}
 		// checking if no moves are available eliminates situations where
 		// player picks redundant moves to keep opponent in a deadlock
+		// Terminal states
 		if(b.hasFinished() || folds == 0 || moves.length == 0){
 			return b.evaluate(this.me);
 		}

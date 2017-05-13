@@ -221,14 +221,16 @@ public class Board {
 		// no two or combination of two evaluations should result in the same OR contradicting information
 		
 		int w1 = 4;
-		int w2 = 1;
-		int w3 = 4;
+		int w2 = 2;
+		int w3 = 3;
 		int w4 = this.board.length;
+		int w5 = 9001;
 		// all of these evaluations should be positive aspects for player
 		return (w1 * relForward(player))
 				+ (w2 * relBehind(player))
 				+ (w3 * relFree(player)) 
-				+ (w4 * relOff(player)); 
+				+ (w4 * relOff(player))
+				+ (w5 * hasWon(player)); 
 	}
 	
 	// relative pieces forward
@@ -289,16 +291,41 @@ public class Board {
 		for(int y = 0; y < this.board.length; y++){
 			for(int x = 0; x < this.board.length; x++){
 				switch(this.tileAt(x, y)){
-				case HORI:
-					
-					break;
 				case VERT:
-					
+					if(y+1 >= this.board.length){
+						nV++;
+					}
+					else if(this.tileAt(x, y+1) == FREE){
+						// left edge of board, nothing can stop you
+						if(x-1 >= 0 && this.tileAt(x-1, y+1) == HORI){
+							nV--;
+						}
+						// right edge of board, nothing to get behind
+						if(x+1 < this.board.length && this.tileAt(x+1, y+1) == HORI){
+							nV++;
+						}
+					}
+					break;
+				case HORI:
+					if(x+1 >= this.board.length){
+						nH++;
+					}
+					else if(this.tileAt(x+1, y) == FREE){
+						
+						// bottom edge of board, nothing can stop you
+						if(y-1 >= 0 && this.tileAt(x+1, y-1) == VERT){
+							nH--;
+						}
+						// top edge of board, nothing to get behind
+						if(y + 1 < this.board.length && this.tileAt(x+1, y+1) == VERT){
+							nH++;
+						}
+					}
 					break;
 				}
 			}
 		}
-		return 0;
+		return player == HORI ? nH - nV : nV - nH;
 	}
 	
 	// relative pieces with forward direction free

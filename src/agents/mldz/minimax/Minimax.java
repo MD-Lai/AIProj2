@@ -46,6 +46,7 @@ public class Minimax extends Interplay{
 		}
 		// checking if no moves are available eliminates situations where
 		// player picks redundant moves to keep opponent in a deadlock
+		// Terminal states
 		if(b.hasFinished() || folds == 0 || moves.length == 0){
 			return b.evaluate(this.me);
 		}
