@@ -222,7 +222,7 @@ public class Board {
 		
 		int w1 = 4;
 		int w2 = 1;
-		int w3 = 2;
+		int w3 = 4;
 		int w4 = this.board.length;
 		// all of these evaluations should be positive aspects for player
 		return (w1 * relForward(player))

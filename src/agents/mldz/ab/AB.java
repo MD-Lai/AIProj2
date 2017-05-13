@@ -20,7 +20,7 @@ public class AB extends Interplay{
 		Board nb;
 		for(Move m : this.board.movesAvailable(this.me)){
 			nb = new Board(this.board.getTiles(), m);
-			tempScore = abVal(nb, Integer.MIN_VALUE, Integer.MAX_VALUE, this.me, 4);
+			tempScore = abVal(nb, Integer.MIN_VALUE, Integer.MAX_VALUE, this.me, 6);
 			
 			if(tempScore >= highScore){
 				highScore = tempScore;
@@ -32,10 +32,10 @@ public class AB extends Interplay{
 	}
 	
 	// TODO verify correctness
-	private int abVal(Board b, int alpha, int beta, byte player, int folds){
+	private int abVal(Board b, int alpha, int beta, byte prevPlayer, int folds){
 		total++;
 		Move[] moves;
-		if(player == this.op){
+		if(prevPlayer == this.op){
 			moves = b.movesAvailable(this.me);
 		}
 		else{
@@ -48,34 +48,30 @@ public class AB extends Interplay{
 		}
 		
 		// max's turn to move -> my player
-		else if(player == this.op){
+		else if(prevPlayer == this.op){
 			Board nb;
-			int v = Integer.MIN_VALUE;
 			for(Move m : moves){
 				nb = new Board(b.getTiles(), m);
-				v = Integer.max(v, abVal(nb, alpha, beta, this.me, folds - 1));
-				alpha = Integer.max(alpha, v);
-				if(beta <= alpha){
+				alpha = Integer.max(alpha, abVal(nb, alpha, beta, this.me, folds - 1));
+				if(alpha >= beta){
 					return beta;
 				}
 			}
-			return v;
+			return alpha;
 		}
 		
 		// min's turn
 		else{
 			Board nb;
-			int v = Integer.MAX_VALUE;
 			for(Move m : moves){
 				nb = new Board(b.getTiles(), m);
-				v = Integer.min(v,abVal(nb, alpha, beta, this.op, folds - 1));
-				beta = Integer.min(beta, v);
+				beta = Integer.min(beta, abVal(nb, alpha, beta, this.op, folds - 1));
 				if(beta <= alpha){
 					return alpha;
 				}
 				
 			}
-			return v;
+			return beta;
 		}
 	}
 	/*
