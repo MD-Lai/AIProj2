@@ -69,8 +69,8 @@ public class Board {
 				this.board[x][y] = bBoard[x][y];
 			}
 		}
-		
 		this.movePiece(m.i, m.j, m.d);
+		
 	}
 	
 	// blindly moves a piece, up to user to give a valid move
@@ -103,61 +103,6 @@ public class Board {
 			break;
 		}
 		this.board[x][y] = FREE;
-	}
-	
-	// newly realised method to find collision 
-	// returns (x,y) of first collision starting at (x,y), casting along directions specified
-	// intended use is cast(x,y,dv,dv) for straight casts, cast(x,y,dv,dh) for diagonal casts
-	// note 2nd direction will override first direction if along same axis
-	public byte[] cast(int x, int y, Move.Direction v, Move.Direction h){
-		int yDir = 0;
-		int xDir = 0;
-		byte[] coll = new byte[2];
-		
-		switch(v){
-		case UP:
-			yDir = 1;
-			break;
-		case DOWN:
-			yDir = -1;
-			break;
-		case RIGHT:
-			xDir = 1;
-			break;
-		case LEFT:
-			xDir = -1;
-			break;
-		}
-		
-		switch(h){
-		case UP:
-			yDir = 1;
-			break;
-		case DOWN:
-			yDir = -1;
-			break;
-		case RIGHT:
-			xDir = 1;
-			break;
-		case LEFT:
-			xDir = -1;
-			break;
-		}
-		
-		while(withinBounds(x + xDir,y + yDir) && board[x + xDir][y + yDir] == FREE){
-			y += yDir;
-			x += xDir;
-		}
-		if(!withinBounds(x + xDir,y + yDir)){
-			coll[0] = (byte)x;
-			coll[1] = (byte)y;
-		} 
-		
-		coll[0] = (byte)(x + xDir);
-		coll[1] = (byte)(y + yDir);
-		
-		return coll;
-		
 	}
 	
 	// checks if a given x and y are within bounds
@@ -236,51 +181,15 @@ public class Board {
 		
 		return false;
 	}
+
 	
-	public Board flipped(){
-		byte[][] flipped = new byte[this.board.length][this.board.length];
-		
-		for(int y = 0; y < this.board.length; y++){
-			for(int x = 0; x < this.board.length; x++){
-				flipped[x][y] = this.board[y][x];
-			}
-		}
-		
-		return new Board(flipped);
-	}
 	
-	public byte[][] getTiles(){
-		return this.board;
-	}
-	
-	public int getLen(){
-		return this.board.length;
-	}
-	
-	public int tileAt(int x, int y){
-		return this.board[x][y];
-	}
-	
-	public char charAt(int x, int y){
-		return BLOCKS[this.board[x][y]];
-	}
-	
-	public String toString(){
-		String str = "";
-		
-		for(int y = this.board.length - 1; y >= 0; --y){
-			
-			for(int x = 0; x < this.board.length; ++x){
-				str += this.charAt(x, y);
-				if(x != this.board.length-1){
-					str += (" ");
-				}
-			}
-			str += "\n";
-		}
-		
-		return str;
-	}
+	/**
+	 * Evaluation function ideally should look at the relative difference between you and your opponent
+	 * All eval functions should return difference between opponent's state and your state
+	 * So that minimax will know which move is "better"
+	 * since an opponent should always move to put current player at a disadvantage
+	 */
 	
 	/**
 	 * Gives a rough estimation of the "goodness" of a board in a given state for a given player
@@ -288,8 +197,8 @@ public class Board {
 	 * @param player player to evaluate for
 	 * @return approximate value of a current board state
 	 */
-	// TODO a better evaluation function
-	public int evaluate(byte player){
+	// TODO a better evaluation function, one that weighs your state vs opponent's state
+	public int evaluate2(byte player){
 		// heuristic evaluation of board
 		int w1 = 4;
 		int w2 = 2; 
@@ -300,24 +209,173 @@ public class Board {
 	}
 	
 	/**
-	 * Checks if a particular state of the game is finished or not
-	 * @return true if a game is finished
+	 * evaluates the comparative utility of given player vs the other player
+	 * @param player player to evaluate for
+	 * @return relative utility of board for given player
 	 */
-	public boolean hasFinished(){
-		int hp = 0;
-		int vp = 0;
+	public int evaluate(byte player){
+		// few things to look out for
+		// piece moves forward -> is able to win the game
+		// pieces don't become blocked by opponent or environment -> doesn't put itself at a disadvantage
+		// pieces are able to put enemy at a disadvantage -> is able to hinder opponent from winning the game to some extent
+		// no two or combination of two evaluations should result in the same OR contradicting information
+		
+		int w1 = 4;
+		int w2 = 2;
+		int w3 = 3;
+		int w4 = this.board.length;
+		int w5 = 9001;
+		// all of these evaluations should be positive aspects for player
+		return (w1 * relForward(player))
+				+ (w2 * relBehind(player))
+				+ (w3 * relFree(player)) 
+				+ (w4 * relOff(player))
+				+ (w5 * hasWon(player)); 
+	}
+	
+	// relative pieces forward
+	private int relForward(byte player){
+		
+		int nVOff = this.board.length - 1; // how many pieces V should have if none are off
+		int nHOff = this.board.length - 1; // how many pieces H should have if none are off
+		int hForward = 0;
+		int vForward = 0;
 		for(int y = 0; y < this.board.length; y++){
 			for(int x = 0; x < this.board.length; x++){
-				if(this.tileAt(x, y) == HORI){
-					++hp;
-				}
-				else if(this.tileAt(x, y) == VERT){
-					++vp;
+				// total forward for V player
+				switch(this.tileAt(x, y)){
+				case VERT:
+					--nVOff;
+					vForward += y;
+					break;
+				// total forward for H player
+				case HORI:
+					--nHOff;
+					hForward += x;
+					break;
 				}
 			}
 		}
-		return hp == 0 || vp == 0;
+		// account for fact that having less pieces SHOULD be a positive factor
+		// applies for entire evaluation
+		hForward += nHOff * this.board.length;
+		vForward += nVOff * this.board.length;
+		// + 1 accounts for the fact that horizontal always has the first move advantage
+		return player == HORI ? hForward + 1 - vForward : vForward - hForward;
 	}
+	
+	// relative number of pieces behind enemies
+	// TODO implement
+	private int relBehind(byte player){
+		// relative pieces with forward and left free for V, forward and right for H
+		// don't want to get out of a bind just to get blocked again immediately after
+		//
+		// min just moved
+		//     + + +
+		//     + H +
+		//     + V +
+		//
+		// max's turn to move
+		// available moves
+		//   1       2
+		// + + +   + + +
+		// + H + > + H +
+		// V + +   + + V
+		// we want to +1 to get to state 1, -1 for state 2
+		// if both occur simultaneously, evaluates to 0
+		// if(board[x+1][y+1] == H && board[x][y+1] == +)
+		
+		int nH = 0; // sum of case 1 and case 2 for H
+		int nV = 0; // sum of case 1 and case 2 for V
+		
+		for(int y = 0; y < this.board.length; y++){
+			for(int x = 0; x < this.board.length; x++){
+				switch(this.tileAt(x, y)){
+				case VERT:
+					if(y+1 >= this.board.length){
+						nV++;
+					}
+					else if(this.tileAt(x, y+1) == FREE){
+						// left edge of board, nothing can stop you
+						if(x-1 >= 0 && this.tileAt(x-1, y+1) == HORI){
+							nV--;
+						}
+						// right edge of board, nothing to get behind
+						if(x+1 < this.board.length && this.tileAt(x+1, y+1) == HORI){
+							nV++;
+						}
+					}
+					break;
+				case HORI:
+					if(x+1 >= this.board.length){
+						nH++;
+					}
+					else if(this.tileAt(x+1, y) == FREE){
+						
+						// bottom edge of board, nothing can stop you
+						if(y-1 >= 0 && this.tileAt(x+1, y-1) == VERT){
+							nH--;
+						}
+						// top edge of board, nothing to get behind
+						if(y + 1 < this.board.length && this.tileAt(x+1, y+1) == VERT){
+							nH++;
+						}
+					}
+					break;
+				}
+			}
+		}
+		return player == HORI ? nH - nV : nV - nH;
+	}
+	
+	// relative pieces with forward direction free
+	// i.e. count number of free available forward moves
+	private int relFree(byte player){
+		int vFree = 0; // vertical pieces free
+		int hFree = 0; // horizontal pieces free
+		for(int y = 0; y < this.board.length; y++){
+			for(int x = 0; x < this.board.length; x++){
+				switch(this.tileAt(x, y)){
+				case HORI:
+					// H piece is on edge of board   H piece is in normal regions of board
+					if(x + 1 == this.board.length || x + 1 < this.board.length && this.tileAt(x + 1, y) == FREE){
+						hFree++;
+					}
+					break;
+				case VERT:
+					if(y + 1 == this.board.length || y + 1 < this.board.length && this.tileAt(x, y+1) == FREE){
+						vFree++;
+					}
+					break;
+				}
+			}
+		}
+		
+		return player == HORI ? hFree - vFree : vFree - hFree;
+	}
+	
+	private int relOff(byte player){
+		int nVOff = this.board.length - 1; // how many pieces V should have if none are off
+		int nHOff = this.board.length - 1; // how many pieces H should have if none are off
+		for(int y = 0; y < this.board.length; y++){
+			for(int x = 0; x < this.board.length; x++){
+				// subtract one if a piece is present
+				switch(this.tileAt(x, y)){
+				case VERT:
+					--nVOff;
+					break;
+				// total forward for H player
+				case HORI:
+					--nHOff;
+					break;
+				}
+			}
+		}
+		// counts number of pieces that a player has moved off
+		// adjust weight in evaluate func
+		return player == HORI ? nHOff - nVOff : nVOff - nHOff;
+	}
+	
 	
 	private int hasWon(byte player){
 		int hp = 0;
@@ -412,7 +470,7 @@ public class Board {
 	 * @param player which player to check
 	 * @return negative value of distance to edge of board +1 for any blocks a piece encounters
 	 */
-	public int manhattan(byte player) {
+	private int manhattan(byte player) {
 		int dim = board.length;
 		int mandist = 0;
 		
@@ -507,24 +565,58 @@ public class Board {
 			}
 		}
 		return moves.toArray(new Move[moves.size()]);
-	}
-	
+	}	
+
 	/**
-	 * Counts the number of pieces left on the board
-	 * @param player
-	 * @return
+	 * Checks if a particular state of the game is finished or not
+	 * @return true if a game is finished
 	 */
-	public int nPieces(byte player){
-		int n = 0;
-		
+	public boolean hasFinished(){
+		int hp = 0;
+		int vp = 0;
 		for(int y = 0; y < this.board.length; y++){
 			for(int x = 0; x < this.board.length; x++){
-				if(this.tileAt(x, y) == player){
-					++n;
+				if(this.tileAt(x, y) == HORI){
+					++hp;
+				}
+				else if(this.tileAt(x, y) == VERT){
+					++vp;
 				}
 			}
 		}
+		return hp == 0 || vp == 0;
+	}
+	
+	public byte[][] getTiles(){
+		return this.board;
+	}
+	
+	public int getLen(){
+		return this.board.length;
+	}
+	
+	public int tileAt(int x, int y){
+		return this.board[x][y];
+	}
+	
+	public char charAt(int x, int y){
+		return BLOCKS[this.board[x][y]];
+	}
+	
+	public String toString(){
+		String str = "";
 		
-		return n;
+		for(int y = this.board.length - 1; y >= 0; --y){
+			
+			for(int x = 0; x < this.board.length; ++x){
+				str += this.charAt(x, y);
+				if(x != this.board.length-1){
+					str += (" ");
+				}
+			}
+			str += "\n";
+		}
+		
+		return str;
 	}
 }
