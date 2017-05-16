@@ -37,7 +37,7 @@ public class AB extends Interplay{
 				best = m;
 			}
 		}
-		System.out.println(Board.BLOCKS[this.me] + " " + highScore);
+		//System.out.println(Board.BLOCKS[this.me] + " " + highScore);
 		return best;
 	}
 	

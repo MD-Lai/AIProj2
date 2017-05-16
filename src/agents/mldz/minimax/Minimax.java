@@ -9,7 +9,7 @@ public class Minimax extends Interplay{
 	
 	public Move nextMove(){
 		Move next = minimaxDecision();
-		System.out.println("MM total evals: " + total);
+		//System.out.println("MM total evals: " + total);
 		return next;
 	}
 	
@@ -36,7 +36,7 @@ public class Minimax extends Interplay{
 	}
 	
 	private int minimaxVal(Board b, byte player, int folds){
-		total++;
+		//total++;
 		Move[] moves;
 		if(player == this.op){
 			moves = b.movesAvailable(this.me);
