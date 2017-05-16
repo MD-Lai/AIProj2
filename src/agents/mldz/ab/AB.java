@@ -5,11 +5,11 @@ import aiproj.slider.Move;
 import board.Board;
 
 public class AB extends Interplay{
-	private long total = 0;
+	//private long total = 0;
 	
 	public Move nextMove(){
 		Move next = abDecision();
-		System.out.println("ab total evals: " + total);
+		//System.out.println("ab total evals: " + total);
 		return next;
 	}
 	
@@ -43,7 +43,7 @@ public class AB extends Interplay{
 	
 	// TODO verify correctness
 	private int abVal(Board b, int alpha, int beta, byte prevPlayer, int folds){
-		total++;
+		//total++;
 		Move[] moves;
 		if(prevPlayer == this.op){
 			moves = b.movesAvailable(this.me);
