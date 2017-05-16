@@ -21,7 +21,7 @@ public class Human extends Interplay{
 		// TODO update based on opponent's move;
 		if(move != null){
 			this.board.movePiece(move.i, move.j, move.d);
-			System.out.println(this.op + " " + move.toString());
+			System.out.println(Board.BLOCKS[this.op] + " " + move.toString());
 		}
 	}
 
@@ -32,43 +32,48 @@ public class Human extends Interplay{
 		humaniseBoard();
 		
 		// gets move from console input.
-		try{
-			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-			System.out.print("Enter Move " + this.me + ": x y dir\n");
-			String line = br.readLine();
-			
-			if(line.equals("null")){
-				return null;
+		if(this.board.movesAvailable(this.me).length > 0){
+			try{
+				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+				System.out.print("Enter Move " + Board.BLOCKS[this.me] + ": x y dir\n");
+				String line = br.readLine();
+				
+				if(line.equals("null")){
+					return null;
+				}
+				String[] command = line.split(" ");
+				int x = Integer.parseInt(command[0]);
+				int y = Integer.parseInt(command[1]);
+				char move = command[2].toCharArray()[0];
+				
+				Move.Direction dir;
+				
+				switch(move){
+				case 'u':
+					dir = Move.Direction.UP;
+					break;
+				case 'd':
+					dir = Move.Direction.DOWN;
+					break;
+				case 'l':
+					dir = Move.Direction.LEFT;
+					break;
+				case 'r':
+					dir = Move.Direction.RIGHT;
+					break;
+				default:
+					throw new Exception();
+				}
+				
+				// ahh we have a move
+				// update board and return move
+				this.board.movePiece(x, y, dir);
+				return new Move(x,y,dir);
 			}
-			String[] command = line.split(" ");
-			int x = Integer.parseInt(command[0]);
-			int y = Integer.parseInt(command[1]);
-			char move = command[2].toCharArray()[0];
-			
-			Move.Direction dir;
-			
-			switch(move){
-			case 'f':
-				dir = MOPS.forward(this.me);
-				break;
-			case 'l':
-				dir = MOPS.left(this.me);
-				break;
-			case 'r':
-				dir = MOPS.right(this.me);
-				break;
-			default:
-				System.out.println("invalid move: " + command[2]+ " (f,l,r) for forward left or right");
-				throw new IOException();
+			catch(Exception e){
+				System.out.println("invalid move: enter in format: \"x y dir\"\ndir = (u,d,l,r) for forward up down left right");
+				return move();
 			}
-			
-			// ahh we have a move
-			// update board and return move
-			this.board.movePiece(x, y, dir);
-			return new Move(x,y,dir);
-		}
-		catch(IOException e){
-			e.printStackTrace();
 		}
 		return null;
 	}
@@ -88,7 +93,7 @@ public class Human extends Interplay{
 			}
 			str += "\n";
 		}
-		str += "x ";
+		str += "- ";
 		for(int f = 0; f < this.board.getLen(); ++f){
 			str += f + " ";
 		}

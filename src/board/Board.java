@@ -181,8 +181,6 @@ public class Board {
 		
 		return false;
 	}
-
-	
 	
 	/**
 	 * Evaluation function ideally should look at the relative difference between you and your opponent
@@ -190,23 +188,6 @@ public class Board {
 	 * So that minimax will know which move is "better"
 	 * since an opponent should always move to put current player at a disadvantage
 	 */
-	
-	/**
-	 * Gives a rough estimation of the "goodness" of a board in a given state for a given player
-	 * Attempts to sum up the value of current board state
-	 * @param player player to evaluate for
-	 * @return approximate value of a current board state
-	 */
-	// TODO a better evaluation function, one that weighs your state vs opponent's state
-	public int evaluate2(byte player){
-		// heuristic evaluation of board
-		int w1 = 4;
-		int w2 = 2; 
-		int w3 = 3;
-		int w4 = 90;
-		//     move forward             number of enemies blocked     pieces relative to opponent
-		return w1 * manhattan(player) + w2 * enemiesBlocked(player) + w3 * relativePieces(player) + w4 * hasWon(player);
-	}
 	
 	/**
 	 * evaluates the comparative utility of given player vs the other player
@@ -223,17 +204,21 @@ public class Board {
 		int w1 = 4;
 		int w2 = 2;
 		int w3 = 3;
-		int w4 = this.board.length;
+		int w4 = 8;
 		int w5 = 9001;
 		// all of these evaluations should be positive aspects for player
 		return (w1 * relForward(player))
 				+ (w2 * relBehind(player))
 				+ (w3 * relFree(player)) 
-				+ (w4 * relOff(player))
+				+ (w4 * relPieces(player))
 				+ (w5 * hasWon(player)); 
 	}
 	
-	// relative pieces forward
+	/**
+	 * relative cumulative distance forward - the same for opponent
+	 * @param player player to evaluate for
+	 * @return relative distance travelled forward
+	 */
 	private int relForward(byte player){
 		
 		int nVOff = this.board.length - 1; // how many pieces V should have if none are off
@@ -258,14 +243,17 @@ public class Board {
 		}
 		// account for fact that having less pieces SHOULD be a positive factor
 		// applies for entire evaluation
-		hForward += nHOff * this.board.length;
-		vForward += nVOff * this.board.length;
 		// + 1 accounts for the fact that horizontal always has the first move advantage
-		return player == HORI ? hForward + 1 - vForward : vForward - hForward;
+		hForward += nHOff * this.board.length + 1;
+		vForward += nVOff * this.board.length;
+		return player == HORI ? hForward - vForward : vForward - hForward;
 	}
 	
-	// relative number of pieces behind enemies
-	// TODO implement
+	/** 
+	 * Relative number of pieces you have "behind" the opponent in front of you
+	 * @param player player to evaluate for
+	 * @return relative number of pieces in a positive state
+	 */
 	private int relBehind(byte player){
 		// relative pieces with forward and left free for V, forward and right for H
 		// don't want to get out of a bind just to get blocked again immediately after
@@ -328,8 +316,12 @@ public class Board {
 		return player == HORI ? nH - nV : nV - nH;
 	}
 	
-	// relative pieces with forward direction free
-	// i.e. count number of free available forward moves
+	/**
+	 * How many pieces you have free relative to your opponent
+	 * Higher is better, means you have more space to move
+	 * @param player player to evaluate for
+	 * @return number of pieces with forward free - same for opponent
+	 */
 	private int relFree(byte player){
 		int vFree = 0; // vertical pieces free
 		int hFree = 0; // horizontal pieces free
@@ -354,29 +346,37 @@ public class Board {
 		return player == HORI ? hFree - vFree : vFree - hFree;
 	}
 	
-	private int relOff(byte player){
-		int nVOff = this.board.length - 1; // how many pieces V should have if none are off
-		int nHOff = this.board.length - 1; // how many pieces H should have if none are off
+	/**
+	 * How many pieces the opponent has relative to the player
+	 * Higher is better, more opponent pieces relative to yours
+	 * @param player player to evaluate for
+	 * @return n opponent pieces - n player's pieces
+	 */
+	private int relPieces(byte player){
+		int hp = 0;
+		int vp = 0;
+		// count for each H, dist = dim(board) - curr(x)
+		// count for each V, dist = dim(board) - curr(y)
 		for(int y = 0; y < this.board.length; y++){
 			for(int x = 0; x < this.board.length; x++){
-				// subtract one if a piece is present
-				switch(this.tileAt(x, y)){
-				case VERT:
-					--nVOff;
-					break;
-				// total forward for H player
-				case HORI:
-					--nHOff;
-					break;
+				if(this.tileAt(x, y) == HORI){
+					++hp;
 				}
+				else if(this.tileAt(x, y) == VERT){
+					++vp;
+				}
+				
 			}
 		}
-		// counts number of pieces that a player has moved off
-		// adjust weight in evaluate func
-		return player == HORI ? nHOff - nVOff : nVOff - nHOff;
+		// opponent pieces - my pieces 
+		return player == VERT ? hp - vp : vp - hp;
 	}
 	
-	
+	/**
+	 * Determines if given player has won
+	 * @param player player to evaluate for
+	 * @return -1 if lost, 1 if won. Adjust significance with weight
+	 */
 	private int hasWon(byte player){
 		int hp = 0;
 		int vp = 0;
@@ -401,132 +401,6 @@ public class Board {
 		else{
 			// nobody won
 			return 0;
-		}
-	}
-	
-	/**
-	 * How many pieces the opponent has relative to the player
-	 * Higher is better, more opponent pieces relative to yours
-	 * @param player player to evaluate for
-	 * @return n opponent pieces - n player's pieces
-	 */
-	private int relativePieces(byte player){
-		int hp = 0;
-		int vp = 0;
-		// count for each H, dist = dim(board) - curr(x)
-		// count for each V, dist = dim(board) - curr(y)
-		for(int y = 0; y < this.board.length; y++){
-			for(int x = 0; x < this.board.length; x++){
-				if(this.tileAt(x, y) == HORI){
-					++hp;
-				}
-				else if(this.tileAt(x, y) == VERT){
-					vp++;
-				}
-				
-			}
-		}
-		// opponent pieces - my pieces 
-		return player == VERT ? hp - vp : vp - hp;
-	}
-	
-	/**
-	 * How many pieces of the opponent are blocked, either by player or blocked tiles
-	 * @param player player to evaluate for
-	 * @return n opponent pieces in a forward blocked state
-	 */
-	private int enemiesBlocked(byte player){
-		int nblocked = 0;
-		// if H: look right
-		switch(player){
-		case HORI:
-			for(int y = 0; y < this.board.length; y++){
-				for(int x = 0; x < this.board.length; x++){
-					if(this.tileAt(x, y) == HORI){
-						if(this.withinBounds(x, y-1) && (this.tileAt(x, y-1) == VERT || this.tileAt(x, y-1) == BLCK)){
-							nblocked++;
-						}
-					}
-				}
-			}
-		// if V look left
-		case VERT:
-			for(int y = 0; y < this.board.length; y++){
-				for(int x = 0; x < this.board.length; x++){
-					if(this.tileAt(x, y) == VERT){
-						if(this.withinBounds(x-1, y) && (this.tileAt(x-1, y) == HORI || this.tileAt(x-1, y) == BLCK)){
-							nblocked++;
-						}
-					}
-				}
-			}
-		}
-		return nblocked;
-	}
-	
-	/** 
-	 * Distance a piece has to the edge of the board + any blocks it encounters
-	 * Value is negative as a larger distance is a bigger DISadvantage
-	 * @param player which player to check
-	 * @return negative value of distance to edge of board +1 for any blocks a piece encounters
-	 */
-	private int manhattan(byte player) {
-		int dim = board.length;
-		int mandist = 0;
-		
-		if (player == HORI) {
-			for(int x = 0; x < dim; x++) {
-				for(int y = 0; y < dim; y++) {
-					if (this.tileAt(x, y) == VERT) {
-						mandist += pManhattan(x, y);
-					}
-				}
-			}
-		return -mandist;
-		} else if (player == VERT) {
-			for(int x = 0; x < dim; x++) {
-				for(int y = 0; y < dim; y++) {
-					if (this.tileAt(x, y) == HORI) {
-						mandist += pManhattan(x, y);
-					}
-				}
-			}
-		return -mandist;
-		} else {
-			return dim;
-		}
-	}
-
-	private int pManhattan(int x, int y) {
-		int dim = board.length;
-		if(board[x][y] == VERT) {
-			return dim - y + forwardBlocked(x, y);
-		} else if(board[x][y] == HORI) {
-			return dim - x + forwardBlocked(x, y);
-		} else {
-			return dim;
-		}
-	}
-
-	private int forwardBlocked(int x, int y) {
-		int dim = board.length;
-		if(board[x][y] == VERT) {
-			for(int j = y + 1; j < dim; j ++) {
-				if(board[x][j] == BLCK) {
-					return 2;
-				}
-			}
-			return 0;
-		} else if(board[x][y] == HORI) {
-			for(int i = x + 1; i < dim; i++) {
-				if(board[i][y] == BLCK) {
-					return 2;
-				}
-			}
-			return 0;
-		} else {
-			System.out.println("Block is not occupied by a piece.");
-			return dim;
 		}
 	}
 	

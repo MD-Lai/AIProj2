@@ -14,13 +14,23 @@ public class AB extends Interplay{
 	}
 	
 	private Move abDecision(){
+		int folds = 7;
+		if(this.board.getLen() <= 5){
+			folds = 10;
+		}
+		else if(this.board.getLen() <= 6){
+			folds = 8;
+		}
+		else if(this.board.getLen() <= 7){
+			folds = 7;
+		}
 		Move best = null;
 		int highScore = Integer.MIN_VALUE;
 		int tempScore = Integer.MIN_VALUE;
 		Board nb;
 		for(Move m : this.board.movesAvailable(this.me)){
 			nb = new Board(this.board.getTiles(), m);
-			tempScore = abVal(nb, Integer.MIN_VALUE, Integer.MAX_VALUE, this.me, 8);
+			tempScore = abVal(nb, Integer.MIN_VALUE, Integer.MAX_VALUE, this.me, folds);
 			
 			if(tempScore >= highScore){
 				highScore = tempScore;
@@ -41,8 +51,7 @@ public class AB extends Interplay{
 		else{
 			moves = b.movesAvailable(this.op);
 		}
-		// checking if no moves are available eliminates situations where
-		// player picks redundant moves to keep opponent in a deadlock
+		// checking if no moves are available
 		// Terminal states
 		if(b.hasFinished() || folds == 0 || moves.length == 0){
 			return b.evaluate(this.me);
